@@ -9,6 +9,7 @@ import { Toaster, toast } from 'sonner';
 import axios from 'axios';
 import { initGoogleAuth, getGoogleAccessToken } from '@/api/googlePhotos';
 import PhotoPicker from '@/components/PhotoPicker';
+import GenerateView from '@/components/GenerateView';
 
 const SERVER = import.meta.env.VITE_SERVER_URL || 'http://localhost:3001';
 const STATUS_FILTERS = ['PENDING', 'APPROVED', 'POSTED', 'REJECTED', 'FAILED'];
@@ -704,6 +705,7 @@ export default function App() {
                     <NavItem icon={LayoutDashboard} label="Dashboard" active={view === 'dashboard'}
                         badge={stats.approved} onClick={() => goToDashboard('APPROVED')} />
                     <NavItem icon={Plus} label="Add Content" active={view === 'wizard'} onClick={openWizard} />
+                    <NavItem icon={Sparkles} label="Generate" active={view === 'generate'} onClick={() => setView('generate')} />
                 </nav>
 
                 <div className="p-4 border-t border-slate-100 space-y-3">
@@ -753,12 +755,14 @@ export default function App() {
                 <header className="shrink-0 px-8 py-4 flex items-center justify-between" style={{ background: '#0d1535' }}>
                     <div>
                         <h2 className="text-white font-semibold text-lg leading-tight">
-                            {view === 'dashboard' ? 'Dashboard' : 'Add Content'}
+                            {view === 'dashboard' ? 'Dashboard' : view === 'wizard' ? 'Add Content' : 'Generate Images'}
                         </h2>
                         <p className="text-slate-400 text-xs mt-0.5">
                             {view === 'dashboard'
                                 ? `${stats.total} total · ${stats.approved} ready to post`
-                                : 'Select photos and analyze with Gemini AI'}
+                                : view === 'wizard'
+                                ? 'Select photos and analyze with Gemini AI'
+                                : 'Create AI-generated images with Pollinations.ai'}
                         </p>
                     </div>
                     {view === 'dashboard' ? (
@@ -916,6 +920,9 @@ export default function App() {
                             </div>
                         </div>
                     )}
+
+                    {/* ── Generate ─────────────────────────── */}
+                    {view === 'generate' && <GenerateView SERVER={SERVER} />}
 
                     {/* ── Wizard ───────────────────────────── */}
                     {view === 'wizard' && (

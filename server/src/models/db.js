@@ -80,6 +80,22 @@ export function initDb() {
         db.exec(`ALTER TABLE media_queue ADD COLUMN sharp_params TEXT`);
     } catch { /* column already exists — ignore */ }
 
+    // generated_images table
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS generated_images (
+        id TEXT PRIMARY KEY,
+        prompt TEXT NOT NULL,
+        model TEXT DEFAULT 'flux',
+        width INTEGER DEFAULT 1080,
+        height INTEGER DEFAULT 1080,
+        image_path TEXT,
+        status TEXT DEFAULT 'DRAFT',
+        caption TEXT,
+        hashtags TEXT,
+        created_at TEXT DEFAULT (datetime('now'))
+      )
+    `);
+
     logger.info({ dbPath: DB_PATH }, '[DB] Database initialized');
 }
 
@@ -203,6 +219,32 @@ export function getStats() {
         rejected: db.prepare(`SELECT COUNT(*) as c FROM media_queue WHERE status = 'REJECTED'`).get().c,
         failed: db.prepare(`SELECT COUNT(*) as c FROM media_queue WHERE status = 'FAILED'`).get().c,
     };
+}
+
+// ─── Generated Images Operations ───────────────────────────────────────────
+export function insertGeneratedImage(item) {
+    db.prepare(`
+        INSERT INTO generated_images (id, prompt, model, width, height, image_path, status, caption, hashtags)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(item.id, item.prompt, item.model, item.width, item.height, item.image_path,
+           item.status || 'DRAFT', item.caption || null, JSON.stringify(item.hashtags || []));
+}
+
+export function getGeneratedImages() {
+    return db.prepare(`SELECT * FROM generated_images ORDER BY created_at DESC LIMIT 100`).all()
+        .map(r => ({ ...r, hashtags: (() => { try { return JSON.parse(r.hashtags); } catch { return []; } })() }));
+}
+
+export function getGeneratedImageById(id) {
+    return db.prepare(`SELECT * FROM generated_images WHERE id = ?`).get(id);
+}
+
+export function updateGeneratedImageStatus(id, status) {
+    db.prepare(`UPDATE generated_images SET status = ? WHERE id = ?`).run(status, id);
+}
+
+export function deleteGeneratedImage(id) {
+    db.prepare(`DELETE FROM generated_images WHERE id = ?`).run(id);
 }
 
 export { db };

@@ -10,6 +10,7 @@ import { downloadForAnalysis } from '../services/mediaBridgeService.js';
 import { logger } from '../utils/logger.js';
 import { hasEditedVersion, loadEditedImage, deleteEditedVersion, EDITED_DIR } from '../services/editingService.js';
 import { sharpEditAndSave } from '../services/sharpEditingService.js';
+import { generateImage, saveGeneratedImage, GENERATED_DIR } from '../services/pollinationsService.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const THUMBNAIL_DIR = path.join(__dirname, '..', '..', '..', 'uploads', 'thumbnails');
@@ -422,6 +423,103 @@ router.post('/queue/:id/edit', async (req, res) => {
 router.delete('/queue/:id/edit', async (req, res) => {
     await deleteEditedVersion(req.params.id);
     editProgress.delete(req.params.id);
+    res.json({ success: true });
+});
+
+// ─── Image Generation (Pollinations.ai) ───────────────────────────────────
+
+// Generate a new image
+router.post('/generate', async (req, res) => {
+    const { prompt, model = 'flux', width = 1080, height = 1080, caption } = req.body;
+    if (!prompt || prompt.trim().length === 0) {
+        return res.status(400).json({ error: 'prompt is required' });
+    }
+
+    const id = crypto.randomUUID();
+    try {
+        const buffer = await generateImage(prompt.trim(), { model, width, height });
+        const imagePath = await saveGeneratedImage(id, buffer);
+        db.insertGeneratedImage({
+            id,
+            prompt: prompt.trim(),
+            model,
+            width,
+            height,
+            image_path: imagePath,
+            status: 'DRAFT',
+            caption: caption || null,
+            hashtags: [],
+        });
+
+        logger.info({ id, model, width, height }, '[Generate] Image generated');
+        res.json({ success: true, id, imageUrl: `/api/generate/${id}/image` });
+    } catch (err) {
+        logger.error({ err: err.message }, '[Generate] Failed');
+        res.status(502).json({ error: err.message });
+    }
+});
+
+// Get generation history
+router.get('/generate/history', (req, res) => {
+    res.json(db.getGeneratedImages());
+});
+
+// Serve generated image file
+router.get('/generate/:id/image', async (req, res) => {
+    const item = db.getGeneratedImageById(req.params.id);
+    if (!item?.image_path) return res.status(404).send('Not found');
+    try {
+        const buffer = await fs.readFile(item.image_path);
+        res.set('Content-Type', 'image/jpeg');
+        res.set('Cache-Control', 'public, max-age=3600');
+        res.send(buffer);
+    } catch {
+        res.status(404).send('Image file not found');
+    }
+});
+
+// Queue a generated image for Instagram posting
+router.post('/generate/:id/queue', (req, res) => {
+    const item = db.getGeneratedImageById(req.params.id);
+    if (!item) return res.status(404).json({ error: 'Generated image not found' });
+
+    const caption = req.body.caption || item.caption || `AI generated image. ${item.prompt}`;
+    const hashtags = req.body.hashtags || [];
+
+    // Insert into media_queue so the posting pipeline picks it up
+    db.insertQueueItem({
+        id: item.id,
+        google_base_url: 'generated', // placeholder — thumbnail is already cached locally
+        original_width: item.width,
+        original_height: item.height,
+        ai_score: 8,
+        mood: 'lifestyle',
+        subject: item.prompt.slice(0, 100),
+        suggested_caption: caption,
+        hashtags,
+        crop_recommendation: item.width === item.height ? 'square' : 'portrait',
+        status: 'APPROVED',
+        rejection_reason: null,
+        platform: 'INSTAGRAM',
+        editing_suggestions: [],
+        sharp_params: null,
+    });
+
+    db.updateGeneratedImageStatus(item.id, 'QUEUED');
+    logger.info({ id: item.id }, '[Generate] Queued for Instagram posting');
+    res.json({ success: true, message: 'Added to posting queue' });
+});
+
+// Delete a generated image
+router.delete('/generate/:id', async (req, res) => {
+    const item = db.getGeneratedImageById(req.params.id);
+    if (!item) return res.status(404).json({ error: 'Not found' });
+
+    if (item.image_path) {
+        fs.unlink(item.image_path).catch(() => {});
+        fs.unlink(path.join(THUMBNAIL_DIR, `${item.id}.jpg`)).catch(() => {});
+    }
+    db.deleteGeneratedImage(item.id);
     res.json({ success: true });
 });
 
