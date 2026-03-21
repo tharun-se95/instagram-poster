@@ -3,10 +3,11 @@ import FormData from 'form-data';
 import sharp from 'sharp';
 import { logger } from '../utils/logger.js';
 
-// Instagram requires aspect ratios between 4:5 (0.8) portrait and 1.91:1 landscape.
+// Instagram requires aspect ratios between 3:4 (0.75) portrait and 1.91:1 landscape.
+// Instagram expanded the maximum portrait ratio from 4:5 to 3:4 in May 2025.
 // If the image is outside this range, crop to the nearest valid edge (center-crop).
 export async function cropToInstagramRatio(imageBuffer) {
-    const IG_MIN = 4 / 5;   // 0.8  — tallest portrait allowed
+    const IG_MIN = 3 / 4;   // 0.75 — tallest portrait allowed (expanded May 2025: was 4/5 = 0.8)
     const IG_MAX = 1.91;    // 1.91 — widest landscape allowed
 
     const meta = await sharp(imageBuffer).metadata();
@@ -16,7 +17,7 @@ export async function cropToInstagramRatio(imageBuffer) {
     if (ratio >= IG_MIN && ratio <= IG_MAX) {
         // Already valid — pass through (re-encode to JPEG to normalise)
         logger.info({ width, height, ratio: ratio.toFixed(3) }, '[Bridge] Aspect ratio OK — no crop needed');
-        return sharp(imageBuffer).jpeg({ quality: 92 }).toBuffer();
+        return sharp(imageBuffer).jpeg({ quality: 88 }).toBuffer();
     }
 
     let cropW = width;
@@ -28,10 +29,10 @@ export async function cropToInstagramRatio(imageBuffer) {
         logger.info({ width, height, ratio: ratio.toFixed(3), cropW, cropH },
             '[Bridge] Image too wide — cropping to 1.91:1');
     } else {
-        // Too tall — crop height down to max portrait 4:5
+        // Too tall — crop height down to max portrait 3:4
         cropH = Math.round(width / IG_MIN);
         logger.info({ width, height, ratio: ratio.toFixed(3), cropW, cropH },
-            '[Bridge] Image too tall — cropping to 4:5');
+            '[Bridge] Image too tall — cropping to 3:4');
     }
 
     // Center-crop
@@ -40,7 +41,7 @@ export async function cropToInstagramRatio(imageBuffer) {
 
     return sharp(imageBuffer)
         .extract({ left, top, width: cropW, height: cropH })
-        .jpeg({ quality: 92 })
+        .jpeg({ quality: 88 })
         .toBuffer();
 }
 
