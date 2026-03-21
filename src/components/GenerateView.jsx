@@ -67,7 +67,7 @@ export default function GenerateView({ SERVER }) {
                 height:  ratio.height,
                 caption: caption.trim(),
             });
-            setCurrentResult({ id: res.data.id, imageUrl: res.data.imageUrl });
+            setCurrentResult({ id: res.data.id, imageUrl: `${SERVER}${res.data.imageUrl}` });
             fetchHistory();
         } catch (err) {
             toast.error(err.response?.data?.error || 'Generation failed');
@@ -250,11 +250,12 @@ export default function GenerateView({ SERVER }) {
                                 className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden group"
                             >
                                 <div className="aspect-square bg-slate-50 relative overflow-hidden">
-                                    {item.imageUrl ? (
+                                    {item.id ? (
                                         <img
-                                            src={item.imageUrl}
+                                            src={`${SERVER}/api/generate/${item.id}/image`}
                                             alt={item.prompt}
                                             className="w-full h-full object-cover"
+                                            onError={e => { e.target.style.display = 'none'; }}
                                         />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center">
