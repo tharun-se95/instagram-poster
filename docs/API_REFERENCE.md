@@ -104,7 +104,83 @@ POST /{business-id}/media_publish  → media_id
 
 ---
 
-## 5. 📹 Kling / Seedance (Phase 3 — AI Video)
+## 5. 🖼️ Pollinations.ai (Phase 2 — Free Image Generation)
+
+**Base URL**: `https://gen.pollinations.ai`
+**Auth**: None required for basic use; register at `auth.pollinations.ai` for higher limits
+
+### Image Generation
+```
+GET https://gen.pollinations.ai/image/{url-encoded-prompt}?model=flux&width=1080&height=1080
+```
+
+| Parameter | Values | Notes |
+|-----------|--------|-------|
+| `model` | `flux`, `gpt-image-large`, `kontext`, `seedream` | Flux = free default; GPT Image = OpenAI quality |
+| `width` / `height` | up to 1280 | Default 1024×1024 |
+| `seed` | integer | Reproducible outputs |
+| `enhance` | `true` / `false` | Auto SPAN 2x upscale |
+
+### Rate Limits
+| Tier | Limit |
+|------|-------|
+| Anonymous | 1 request / 15 seconds |
+| Registered (free) | Higher limits + hourly Pollen credit regeneration |
+| Secret key (sk_) | No rate limit (server-side only, never expose publicly) |
+
+### Cost
+- **Basic**: Free forever, no signup
+- **Pollen credits**: $1 ≈ 1 Pollen; earned daily by contributing or bought pay-as-you-go
+- Watermarks only removed with registered account
+
+### Key Notes
+- No SDK needed — plain HTTP GET
+- Client-side apps: IP rate-limited at 1 Pollen/hour
+- Use exponential backoff on 429s (1s → 2s → 4s)
+
+---
+
+## 5b. 🖼️ Grok Aurora — xAI Image Generation (Phase 2/3)
+
+**API**: `https://api.x.ai/v1`
+**Auth**: `Authorization: Bearer {XAI_API_KEY}` (get key at `console.x.ai`)
+**SDK**: `npm install openai` (Aurora uses OpenAI-compatible `/images/generations` endpoint)
+
+### Image Generation
+```js
+import OpenAI from 'openai';
+const xai = new OpenAI({ baseURL: 'https://api.x.ai/v1', apiKey: process.env.XAI_API_KEY });
+const response = await xai.images.generate({
+  model: 'aurora',
+  prompt: 'Photorealistic sunset over a tropical beach',
+  n: 1,
+  size: '1024x1024'
+});
+```
+
+### Image Editing (Multimodal Input)
+Aurora accepts an existing image as input to edit or extend — unique vs. DALL-E 3:
+```js
+await xai.images.edit({ model: 'aurora', image: fs.createReadStream('photo.jpg'), prompt: 'Add golden hour lighting' });
+```
+
+### Pricing (2026)
+| Source | Cost |
+|--------|------|
+| xAI API direct | ~$0.07/image (verify at console.x.ai) |
+| WaveSpeed AI | $0.07/image |
+| PoYo.ai | $0.03/image |
+| New user credit | $25 free on signup + $150/mo via data sharing program |
+
+### Key Notes
+- Aurora is an autoregressive mixture-of-experts model (different architecture from diffusion models)
+- Excels at photorealistic rendering and precise instruction following
+- Native image-to-image: pass existing photo + text prompt to edit
+- xAI API is OpenAI-compatible — drop-in replacement for `openai` SDK calls
+
+---
+
+## 7. 📹 Kling / Seedance (Phase 3 — AI Video)
 
 **Access via**: `fal.ai` (unified AI model API)
 **SDK**: `npm install @fal-ai/client`
@@ -117,7 +193,7 @@ POST /{business-id}/media_publish  → media_id
 
 ---
 
-## 6. 🎙️ ElevenLabs (Phase 2/3 — Voice)
+## 8. 🎙️ ElevenLabs (Phase 2/3 — Voice)
 
 **SDK**: `npm install elevenlabs`
 | Plan | Price | Characters/mo |
@@ -129,7 +205,7 @@ POST /{business-id}/media_publish  → media_id
 
 ---
 
-## 7. 🎵 Suno AI (Phase 3 — Music)
+## 9. 🎵 Suno AI (Phase 3 — Music)
 
 **API**: Unofficial via `cometapi.com`
 - Pro plan: $10/mo → ~2,500 songs, commercial rights
