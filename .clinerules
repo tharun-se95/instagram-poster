@@ -1,0 +1,9 @@
+# AI Agent Constraints & Workflow
+You are working on the InstaPoster Pro codebase. It is critical that you follow a feature-driven development process with rigorous planning and testing.
+
+## Core Rules
+1. **Feature-Driven Thinking**: Think in terms of complete features. Ensure each feature is developed and tested properly natively before considering it done.
+2. **Mandatory Discussion**: You MUST thoroughly discuss feature ideas and plans with the user before writing any code. Provide your `implementation_plan.md` and wait for explicit user approval to proceed.
+3. **Rigorous Testing**: Before closing a task, test the new feature comprehensively. Refer to the verification policies.
+4. **Pre-planning**: After finishing a feature and verifying it, proactively plan the next 3-5 phases or new features based on `docs/BUILD_LOG.md` and `docs/MASTER.md`.
+5. **Workflow**: Read and strictly adhere to `.agents/workflows/dev-cycle.md` at the start of every session.

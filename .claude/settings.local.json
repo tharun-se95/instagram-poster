@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Claude_Preview__preview_start",
+      "WebFetch(domain:www.skill.sh)",
+      "WebFetch(domain:skill.sh)",
+      "WebSearch",
+      "mcp__mcp-registry__search_mcp_registry",
+      "WebFetch(domain:mcpservers.org)",
+      "WebFetch(domain:skillsmp.com)",
+      "WebFetch(domain:mcpmarket.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:ai.google.dev)",
+      "WebFetch(domain:sharp.pixelplumbing.com)",
+      "WebFetch(domain:replicate.com)",
+      "WebFetch(domain:pollinations.ai)",
+      "WebFetch(domain:platform.stability.ai)",
+      "WebFetch(domain:enter.pollinations.ai)",
+      "WebFetch(domain:stability.ai)",
+      "WebFetch(domain:www.getaiperks.com)"
+    ]
+  }
+}

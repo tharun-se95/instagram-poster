@@ -1,0 +1,63 @@
+{
+    "mcpServers": {
+        "filesystem": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-filesystem",
+                "/Users/tharunk/Documents/instagram-poster"
+            ],
+            "env": {}
+        },
+        "sqlite": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "mcp-server-sqlite",
+                "--db-path",
+                "/Users/tharunk/Documents/instagram-poster/server/instaposter.db"
+            ],
+            "env": {}
+        },
+        "fetch": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "mcp-fetch-server"
+            ],
+            "env": {}
+        },
+        "playwright": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@playwright/mcp"
+            ],
+            "env": {}
+        },
+        "mcp-banana": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@ynzys/mcp-banana"
+            ],
+            "env": {}
+        },
+        "research-plugins": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@wentorai/research-plugins"
+            ],
+            "env": {}
+        },
+        "mcp-deepwiki": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "mcp-deepwiki"
+            ],
+            "env": {}
+        }
+    }
+}

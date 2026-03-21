@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Light Mode CSS Variables ──────────────────────────────────────────── */
+@layer base {
+    :root {
+        --background: 248 100% 99%;     /* #f8f7ff */
+        --foreground: 222 47% 15%;
+
+        --card: 0 0% 100%;
+        --card-foreground: 222 47% 15%;
+
+        --popover: 0 0% 100%;
+        --popover-foreground: 222 47% 15%;
+
+        --primary: 250 77% 60%;         /* #6c5ce7 */
+        --primary-foreground: 0 0% 100%;
+
+        --secondary: 248 50% 95%;
+        --secondary-foreground: 250 30% 40%;
+
+        --muted: 248 30% 95%;
+        --muted-foreground: 240 5% 55%;
+
+        --accent: 250 77% 60%;
+        --accent-foreground: 0 0% 100%;
+
+        --destructive: 0 72% 51%;
+        --destructive-foreground: 0 0% 100%;
+
+        --border: 220 20% 90%;
+        --input: 220 20% 93%;
+        --ring: 250 77% 60%;
+
+        --radius: 0.75rem;
+    }
+}
+
+/* ─── Base Reset ─────────────────────────────────────────────────────────── */
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    html {
+        @apply scroll-smooth;
+    }
+
+    body {
+        @apply bg-base text-foreground antialiased;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    h1 { @apply text-3xl font-bold tracking-tight; }
+    h2 { @apply text-xl font-semibold; }
+    h3 { @apply text-base font-semibold; }
+
+    code {
+        @apply bg-muted px-1.5 py-0.5 rounded text-sm font-mono;
+        color: #6c5ce7;
+    }
+}
+
+/* ─── App Card (light — replaces glassmorphism) ──────────────────────────── */
+@layer components {
+    .app-card {
+        @apply bg-white rounded-xl border border-slate-100 overflow-hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Backwards-compat alias so existing usages still work */
+    .glass-card {
+        @apply app-card;
+    }
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────────────────── */
+@layer utilities {
+    .scrollbar-thin {
+        scrollbar-width: thin;
+        scrollbar-color: #6c5ce7 transparent;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+        background: #6c5ce7;
+        border-radius: 999px;
+    }
+}

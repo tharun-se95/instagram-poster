@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+server/node_modules/
+
+# Environment variables — NEVER commit
+.env
+.env.local
+.env.*.local
+server/.env
+
+# Build output
+dist/
+
+# Vite dependency cache
+.vite/
+
+# Database files (contain live data)
+*.db
+*.db-shm
+*.db-wal
+*.db.bak
+
+# Uploaded / generated media
+uploads/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Claude Code internal
+.claude/projects/
