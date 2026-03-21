@@ -24,34 +24,27 @@ const STATUS_STYLE = {
 
 // ─── Thumbnail Image ─────────────────────────────────────────────────────────
 function ThumbnailImage({ itemId, className = '', srcOverride = null }) {
-    const [state, setState] = useState('loading'); // loading | loaded | error
+    const [error, setError] = useState(false);
     const src = srcOverride || `${SERVER}/api/queue/${itemId}/thumbnail`;
 
-    // Reset loading state when src changes (e.g. switching between original and edited)
-    useEffect(() => {
-        setState('loading');
-    }, [src]);
+    // Reset error state when src changes (e.g. switching to edited image)
+    useEffect(() => { setError(false); }, [src]);
 
     return (
         <div className={`relative bg-slate-100 overflow-hidden ${className}`}>
-            {state === 'loading' && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                    <Loader2 size={18} className="animate-spin text-slate-300" />
-                </div>
-            )}
-            {state === 'error' && (
+            {error ? (
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
                     <ImagePlus size={20} className="text-slate-300" />
                     <span className="text-[10px] text-slate-300">No preview</span>
                 </div>
+            ) : (
+                <img
+                    src={src}
+                    alt="Post preview"
+                    className="w-full h-full object-cover"
+                    onError={() => setError(true)}
+                />
             )}
-            <img
-                src={src}
-                alt="Post preview"
-                className={`w-full h-full object-cover transition-opacity duration-200 ${state === 'loaded' ? 'opacity-100' : 'opacity-0'}`}
-                onLoad={() => setState('loaded')}
-                onError={() => setState('error')}
-            />
         </div>
     );
 }
@@ -258,7 +251,7 @@ function QueueCard({ item, onApprove, onReject, onRegenCaption, onPost, onRefres
         : null; // null = ThumbnailImage uses its default src
 
     return (
-        <motion.div layout initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
             <div className="bg-white rounded-xl border border-slate-100 overflow-hidden hover:shadow-md transition-shadow" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
                 {/* Thumbnail */}
                 <div className="aspect-video relative overflow-hidden">
@@ -905,7 +898,7 @@ export default function App() {
                                         </div>
                                     ) : (
                                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-                                            <AnimatePresence>
+                                            <AnimatePresence initial={false}>
                                                 {queue.map(item => (
                                                     <QueueCard key={item.id} item={item}
                                                         onApprove={handleApprove}
