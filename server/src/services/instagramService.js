@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { logger } from '../utils/logger.js';
 
-const getConfig = () => ({
+export const getConfig = () => ({
     accessToken: process.env.VITE_INSTAGRAM_ACCESS_TOKEN,
     businessId: process.env.VITE_INSTAGRAM_BUSINESS_ID,
     baseUrl: `https://graph.instagram.com/${process.env.VITE_IG_API_VERSION || 'v25.0'}`,
@@ -56,15 +56,32 @@ export async function postImage(imageUrl, caption, onProgress) {
 export async function archivePost(postId) {
     const { accessToken, baseUrl } = getConfig();
     logger.info({ postId }, '[Instagram] Archiving post (test mode)...');
-    try {
-        await axios.post(`${baseUrl}/${postId}`, null, {
-            params: { archive: 'true', comment_enabled: 'true', access_token: accessToken },
-        });
-        logger.info({ postId }, '[Instagram] Post archived — hidden from public grid');
-    } catch (err) {
-        const igError = err.response?.data?.error;
-        logger.warn({ igError, postId }, '[Instagram] Archive failed — post remains public');
+
+    // Wait 3s — Instagram needs a moment to finalize the media before it can be archived
+    await delay(3000);
+
+    for (let attempt = 1; attempt <= 2; attempt++) {
+        try {
+            await axios.post(`${baseUrl}/${postId}`, null, {
+                params: { archive: 'true', comment_enabled: 'true', access_token: accessToken },
+            });
+            logger.info({ postId }, '[Instagram] ✅ Post archived — hidden from public grid');
+            return true;
+        } catch (err) {
+            const igError = err.response?.data?.error;
+            const subcode = igError?.error_subcode;
+
+            if (subcode === 33 && attempt === 1) {
+                // Media not yet available — wait 4s and retry once
+                logger.warn({ postId, attempt }, '[Instagram] Archive: media not ready yet, retrying in 4s…');
+                await delay(4000);
+            } else {
+                logger.warn({ igError, postId }, '[Instagram] Archive failed — post remains public');
+                return false;
+            }
+        }
     }
+    return false;
 }
 
 export async function postReel(videoUrl, caption) {

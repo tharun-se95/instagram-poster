@@ -161,14 +161,18 @@ async function postItem(item, googleAccessToken) {
 
         // Test mode: archive immediately so post is hidden from public grid
         const testMode = db.getSetting('test_mode') === 'true';
+        let archived = false;
         if (testMode) {
             setProgress(item.id, 'archiving', 'Archiving post (test mode)…', 92);
-            await archivePost(postId);
+            archived = await archivePost(postId);
+            if (!archived) {
+                logger.warn({ postId }, '[Automation] Archive failed — post is live despite test mode');
+            }
         }
 
         postingProgress.delete(item.id); // clean up — signals completion to polling clients
-        logger.info({ postId, testMode }, '[Automation] ✅ Posted successfully');
-        return { success: true, postId, archived: testMode };
+        logger.info({ postId, testMode, archived }, '[Automation] ✅ Posted successfully');
+        return { success: true, postId, archived };
 
     } catch (err) {
         postingProgress.delete(item.id);

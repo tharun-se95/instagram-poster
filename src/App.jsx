@@ -613,7 +613,13 @@ export default function App() {
             .then(res => {
                 fetchData();
                 if (res.data.success) {
-                    toast.success(res.data.archived ? 'Posted & archived (Test Mode) 🔒' : 'Posted to Instagram! 🎉');
+                    if (res.data.archived) {
+                        toast.success('Posted & archived (Test Mode) 🔒');
+                    } else if (isTestMode) {
+                        toast.warning('Posted live ⚠️ Archive failed — post is public despite Test Mode');
+                    } else {
+                        toast.success('Posted to Instagram! 🎉');
+                    }
                 } else {
                     toast.error(res.data.error || 'Post failed');
                 }

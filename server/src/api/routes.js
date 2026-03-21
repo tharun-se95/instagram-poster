@@ -10,6 +10,7 @@ import { downloadForAnalysis } from '../services/mediaBridgeService.js';
 import { logger } from '../utils/logger.js';
 import { hasEditedVersion, loadEditedImage, deleteEditedVersion, EDITED_DIR } from '../services/editingService.js';
 import { sharpEditAndSave } from '../services/sharpEditingService.js';
+import { getConfig } from '../services/instagramService.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const THUMBNAIL_DIR = path.join(__dirname, '..', '..', '..', 'uploads', 'thumbnails');
@@ -135,6 +136,32 @@ router.post('/queue/:id/post', async (req, res) => {
 router.get('/queue/:id/post-progress', (req, res) => {
     const progress = getPostingProgress(req.params.id);
     res.json(progress);
+});
+
+// Archive / unarchive a POSTED item on demand
+router.post('/queue/:id/archive', async (req, res) => {
+    const item = db.getQueueItemById(req.params.id);
+    if (!item) return res.status(404).json({ error: 'Item not found' });
+    if (!item.platform_post_id) return res.status(400).json({ error: 'Item has no Instagram post ID — not yet posted' });
+
+    const unarchive = req.query.undo === 'true';
+    const { accessToken, baseUrl } = getConfig();
+
+    try {
+        await axios.post(`${baseUrl}/${item.platform_post_id}`, null, {
+            params: {
+                archive: unarchive ? 'false' : 'true',
+                comment_enabled: 'true',
+                access_token: accessToken,
+            },
+        });
+        logger.info({ id: item.id, postId: item.platform_post_id, unarchive }, '[API] Archive toggled');
+        res.json({ success: true, archived: !unarchive, platform_post_id: item.platform_post_id });
+    } catch (err) {
+        const igError = err.response?.data?.error;
+        logger.warn({ igError, id: item.id }, '[API] Archive toggle failed');
+        res.status(502).json({ error: igError?.message || err.message });
+    }
 });
 
 // Scheduler controls
