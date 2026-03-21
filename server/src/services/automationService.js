@@ -128,6 +128,9 @@ async function postItem(item, googleAccessToken) {
                 logger.info({ id: item.id }, '[Automation] Using local image cache');
             } catch {
                 logger.warn({ id: item.id }, '[Automation] Local cache miss — downloading from Google Photos');
+                if (item.google_base_url === 'generated') {
+                    throw new Error('Generated image file not found in cache — please re-generate the image');
+                }
                 setProgress(item.id, 'bridging', 'Downloading from Google Photos…', 20);
                 const googleToken = googleAccessToken || db.getToken('google')?.access_token;
                 if (!googleToken) throw new Error('No Google access token available and no local cache found');

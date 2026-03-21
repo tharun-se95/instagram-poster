@@ -29,6 +29,8 @@
 | 📊 Analytics | **AssemblyAI** | Pay/min | Audio intelligence on Reel performance |
 | 🖼️ Enhance | **Real-ESRGAN** via Replicate | ~$1-3/mo | Auto-upscale Google Photos 4x |
 | 🔥 Trends | **pytrends** (Google Trends) | Free | No API key needed |
+| 🖼️ Image Gen (free) | **Pollinations.ai** | Free / $1≈1 Pollen | No signup for basic use; Flux/GPT-Image/Kontext models; 1 req/15s anon |
+| 🖼️ Image Gen (paid) | **Grok Aurora** (xAI API) | ~$0.07/image | Photorealistic autoregressive model; multimodal input (text+image); via console.x.ai |
 
 ---
 
@@ -43,6 +45,7 @@
 | 🎥 Hero Content | **Google Veo 3** (Vertex AI) | $0.35–0.50/s | Film-grade for special content |
 | 🎞️ Composition | **FFmpeg** + `fluent-ffmpeg` | Free | Stitch clips, mix audio, burn subs |
 | 📹 Stock B-roll | **Pixabay CC0 API** | Free | 5,000 req/hr, full commercial use |
+| 🖼️ Scene Art | **Grok Aurora** via xAI API | ~$0.07/img | Photorealistic hero stills for video thumbnails + scene inserts |
 
 ---
 
@@ -52,6 +55,7 @@
 |-------|-------|------|
 | Phase 1 (now) | Gemini API calls only | ~$0.03–0.08 |
 | Phase 2 | + ElevenLabs + Suno + Replicate | ~$16–20/mo |
+| Phase 2 + Grok Aurora | + 100 AI images/mo | ~$23–27/mo |
 | Phase 3 | + Kling/Seedance (50 videos) | ~$31–43/mo |
 
 ---
@@ -66,3 +70,5 @@
 | Captions | faster-whisper | AssemblyAI | Free local, word timestamps sufficient |
 | Stock footage | Pixabay CC0 | Pexels | Pexels bans AI training use; Pixabay is fully free commercial |
 | Agents | CrewAI (Python) | LangChain only | CrewAI is lighter, purpose-built for agent crews |
+| Free image gen | Pollinations.ai | Hugging Face | Simpler HTTP API (no SDK), multiple models (Flux/Kontext/Seedream), no key needed |
+| Paid image gen | Grok Aurora | DALL-E 3 / Midjourney | Aurora supports image-to-image editing; $0.07/img vs $0.04+ for OpenAI but with better photorealism |
