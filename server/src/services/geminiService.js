@@ -19,9 +19,9 @@ Carefully examine this specific photograph and return ONLY a valid JSON object w
   "mood": "<one of: travel|lifestyle|nature|urban|food|portrait|abstract>",
   "instagram_ready": <true|false>,
   "rejection_reason": "<empty string if ready, brief reason if not>",
-  "suggested_caption": "<2-3 sentences with relevant emojis, end with a CTA like 'Save this for later ✨' or 'Share with someone who needs to see this'>",
-  "hashtags": ["#tag1", "#tag2", "...up to 20 highly relevant hashtags"],
-  "crop_recommendation": "<one of: '4:5 portrait'|'1:1 square'|'use as-is'>",
+  "suggested_caption": "<2-3 sentences with relevant emojis and 2-3 natural keywords woven into the text for SEO. End with a save or share CTA like 'Save this for later ✨', 'Send this to a friend who needs to see this 💫', or 'Share with someone who would love this 🌟'>",
+  "hashtags": ["#tag1", "#tag2", "#tag3", "#tag4", "#tag5 — 3 to 5 niche-specific hashtags only, NO generic tags like #photo or #instagood"],
+  "crop_recommendation": "<one of: '3:4 portrait'|'4:5 portrait'|'1:1 square'|'use as-is'>",
   "editing_suggestions": [
     "<3-5 editing instructions SPECIFIC to what you observe in THIS image — each under 12 words>",
     "<Base each suggestion on an actual visual issue or opportunity you see: e.g. if the sky is blown out say 'Recover highlights in overexposed sky area'; if a portrait has harsh shadows say 'Fill in under-eye shadows with +15 fill light'; if colors look flat say 'Boost vibrance to make greens and blues pop'; if the subject is backlit say 'Add +0.7 EV exposure compensation for backlit subject'>",

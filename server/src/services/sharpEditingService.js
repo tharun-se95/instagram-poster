@@ -219,10 +219,12 @@ async function applySharpParams(imageBuffer, params) {
     }
 
     // ── 5. Sharpening ───────────────────────────────────────────────────────
-    if (params.sharpen != null && params.sharpen > 0) {
-        const sigma = Math.max(0.1, Math.min(3, params.sharpen));
-        pipeline = pipeline.sharpen({ sigma, m1: 1.5, m2: 0.7 });
-    }
+    // Always apply at least a light sharpen — Instagram's compression pipeline
+    // reduces fine detail regardless of source quality.
+    const sharpenSigma = (params.sharpen != null && params.sharpen > 0)
+        ? Math.max(0.1, Math.min(3, params.sharpen))
+        : 0.6; // mandatory minimum to counteract Instagram JPEG compression
+    pipeline = pipeline.sharpen({ sigma: sharpenSigma, m1: 1.5, m2: 0.7 });
 
     // ── 6. Noise reduction ──────────────────────────────────────────────────
     // Median filter with radius 3 is gentle and effective for moderate grain
@@ -230,8 +232,8 @@ async function applySharpParams(imageBuffer, params) {
         pipeline = pipeline.median(3);
     }
 
-    // Output as high-quality JPEG
-    return pipeline.jpeg({ quality: 92 }).toBuffer();
+    // Output as high-quality JPEG — 88 is the sweet spot for Instagram (80-90% range)
+    return pipeline.jpeg({ quality: 88 }).toBuffer();
 }
 
 /**

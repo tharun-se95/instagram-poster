@@ -227,14 +227,14 @@ function buildCaption(analysis) {
     const caption = analysis.suggested_caption || '';
     const tags = Array.isArray(analysis.hashtags) ? analysis.hashtags : [];
     if (tags.length === 0) return caption;
-    return `${caption}\n\n${tags.slice(0, 20).join(' ')}`;
+    return `${caption}\n\n${tags.slice(0, 5).join(' ')}`;
 }
 
 export function startScheduler(getGoogleToken) {
     cronJobs.forEach((job) => job.stop());
     cronJobs = [];
 
-    const schedules = ['7 9 * * *', '5 18 * * *'];
+    const schedules = ['7 9 * * *', '7 19 * * *'];
 
     for (const schedule of schedules) {
         const job = cron.schedule(schedule, async () => {
@@ -244,7 +244,7 @@ export function startScheduler(getGoogleToken) {
         cronJobs.push(job);
     }
 
-    logger.info('[Scheduler] ✅ Posting scheduler started (9:07 AM & 6:05 PM)');
+    logger.info('[Scheduler] ✅ Posting scheduler started (9:07 AM & 7:07 PM)');
 }
 
 export function stopScheduler() {
