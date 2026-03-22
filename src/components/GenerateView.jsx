@@ -4,9 +4,9 @@ import { toast } from 'sonner';
 import { Sparkles, Loader2, Trash2, Send, RefreshCw, Image, CheckCircle2 } from 'lucide-react';
 
 const MODELS = [
-    { id: 'flux',          label: 'High Quality',   desc: 'Best results'     },
-    { id: 'flux-realism',  label: 'Photorealistic', desc: 'Lifelike photos'  },
-    { id: 'turbo',         label: 'Fast',           desc: 'Quick preview'    },
+    { id: 'default',  label: 'High Quality',   desc: 'Best results'    },
+    { id: 'turbo',    label: 'Fast',           desc: 'Quick preview'   },
+    { id: 'zimage',   label: 'Artistic',       desc: 'Stylized look'   },
 ];
 
 const RATIOS = [
@@ -32,7 +32,7 @@ function StatusBadge({ status }) {
 
 export default function GenerateView({ SERVER }) {
     const [prompt, setPrompt]         = useState('');
-    const [model, setModel]           = useState('flux');
+    const [model, setModel]           = useState('default');
     const [ratio, setRatio]           = useState(RATIOS[1]);
     const [caption, setCaption]       = useState('');
     const [generating, setGenerating] = useState(false);
@@ -70,7 +70,12 @@ export default function GenerateView({ SERVER }) {
             setCurrentResult({ id: res.data.id, imageUrl: `${SERVER}${res.data.imageUrl}` });
             fetchHistory();
         } catch (err) {
-            toast.error(err.response?.data?.error || 'Generation failed');
+            const msg = err.response?.data?.error || err.message || 'Generation failed';
+            const isServiceDown = msg.toLowerCase().includes('pollinations') || msg.includes('500') || msg.includes('variants');
+            toast.error(isServiceDown
+                ? 'Pollinations.ai is unavailable right now — try again in a few minutes'
+                : msg
+            );
         } finally {
             setGenerating(false);
         }
