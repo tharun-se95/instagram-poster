@@ -17,7 +17,27 @@
       "WebFetch(domain:platform.stability.ai)",
       "WebFetch(domain:enter.pollinations.ai)",
       "WebFetch(domain:stability.ai)",
-      "WebFetch(domain:www.getaiperks.com)"
+      "WebFetch(domain:www.getaiperks.com)",
+      "mcp__plugin_chrome-devtools-mcp_chrome-devtools__list_pages",
+      "mcp__plugin_chrome-devtools-mcp_chrome-devtools__navigate_page",
+      "mcp__plugin_chrome-devtools-mcp_chrome-devtools__take_screenshot",
+      "mcp__plugin_chrome-devtools-mcp_chrome-devtools__get_console_message",
+      "mcp__plugin_chrome-devtools-mcp_chrome-devtools__list_console_messages",
+      "mcp__plugin_chrome-devtools-mcp_chrome-devtools__list_network_requests",
+      "mcp__plugin_chrome-devtools-mcp_chrome-devtools__get_network_request",
+      "mcp__plugin_chrome-devtools-mcp_chrome-devtools__evaluate_script",
+      "WebFetch(domain:bfl.ai)",
+      "WebFetch(domain:www.together.ai)",
+      "WebFetch(domain:fal.ai)",
+      "WebFetch(domain:docs.prodia.com)",
+      "WebFetch(domain:docs.bfl.ml)",
+      "WebFetch(domain:deepinfra.com)",
+      "WebFetch(domain:docs.together.ai)",
+      "WebFetch(domain:getimg.ai)",
+      "WebFetch(domain:www.pixazo.ai)",
+      "WebFetch(domain:fireworks.ai)",
+      "WebFetch(domain:awesomeagents.ai)",
+      "WebFetch(domain:docs.fireworks.ai)"
     ]
   }
 }
