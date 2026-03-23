@@ -66,6 +66,8 @@ export function initDb() {
         ['niche', 'lifestyle'],
         ['post_times', '["7 9 * * *", "5 18 * * *"]'],
         ['test_mode', 'true'],  // Archive posts immediately — hidden from public, visible only to you
+        ['ai_provider', 'gemini'],
+        ['ai_model', 'gemini-2.5-flash'],
     ];
     const upsert = db.prepare(`INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)`);
     for (const [key, value] of defaults) upsert.run(key, value);

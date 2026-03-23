@@ -5,7 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import * as db from '../models/db.js';
 import { runCurationBatch, runPostingCycle, postSpecificItem, getPostingProgress, startScheduler, stopScheduler } from '../services/automationService.js';
-import { regenerateCaption, analyzePhoto } from '../services/geminiService.js';
+import { regenerateCaption, analyzePhoto, getProvidersInfo } from '../services/aiService.js';
 import { downloadForAnalysis } from '../services/mediaBridgeService.js';
 import { logger } from '../utils/logger.js';
 import { hasEditedVersion, loadEditedImage, deleteEditedVersion, EDITED_DIR } from '../services/editingService.js';
@@ -151,18 +151,23 @@ router.post('/scheduler/resume', (req, res) => {
 
 // Settings
 router.get('/settings', (req, res) => {
-    const keys = ['posting_paused', 'daily_post_limit', 'min_ai_score_threshold', 'niche', 'post_times', 'test_mode'];
+    const keys = ['posting_paused', 'daily_post_limit', 'min_ai_score_threshold', 'niche', 'post_times', 'test_mode', 'ai_provider', 'ai_model'];
     const settings = {};
     for (const key of keys) settings[key] = db.getSetting(key);
     res.json(settings);
 });
 
 router.patch('/settings', (req, res) => {
-    const allowed = ['daily_post_limit', 'min_ai_score_threshold', 'niche', 'test_mode'];
+    const allowed = ['daily_post_limit', 'min_ai_score_threshold', 'niche', 'test_mode', 'ai_provider', 'ai_model'];
     for (const key of allowed) {
         if (req.body[key] !== undefined) db.setSetting(key, req.body[key]);
     }
     res.json({ success: true });
+});
+
+// AI provider/model discovery
+router.get('/ai/providers', (req, res) => {
+    res.json(getProvidersInfo());
 });
 
 // Thumbnail proxy — serves from local cache, falls back to Google, then caches locally

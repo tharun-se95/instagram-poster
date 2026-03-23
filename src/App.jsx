@@ -475,6 +475,9 @@ export default function App() {
     const [googleToken, setGoogleToken] = useState(null);
     const [isPaused, setIsPaused] = useState(false);
     const [isTestMode, setIsTestMode] = useState(true);
+    const [aiProviders, setAiProviders] = useState([]);
+    const [aiProvider, setAiProvider] = useState('gemini');
+    const [aiModel, setAiModel] = useState('gemini-2.5-flash');
     const [serverOnline, setServerOnline] = useState(false);
     const [postingNow, setPostingNow] = useState(false);
 
@@ -499,15 +502,19 @@ export default function App() {
                   }))
                 : axios.get(`${SERVER}/api/queue`, { params: { status: statusFilter } });
 
-            const [statsRes, queueRes, settingsRes] = await Promise.all([
+            const [statsRes, queueRes, settingsRes, providersRes] = await Promise.all([
                 axios.get(`${SERVER}/api/stats`),
                 fetchQueue,
                 axios.get(`${SERVER}/api/settings`),
+                axios.get(`${SERVER}/api/ai/providers`),
             ]);
             setStats(statsRes.data);
             setQueue(queueRes.data);
             setIsPaused(settingsRes.data.posting_paused === 'true');
             setIsTestMode(settingsRes.data.test_mode === 'true');
+            setAiProvider(settingsRes.data.ai_provider || 'gemini');
+            setAiModel(settingsRes.data.ai_model || 'gemini-2.5-flash');
+            setAiProviders(providersRes.data.providers || []);
             setServerOnline(true);
         } catch {
             setServerOnline(false);
@@ -640,6 +647,21 @@ export default function App() {
         toast(next ? '🔒 Test mode ON — posts will be auto-archived' : '🌐 Test mode OFF — posts are public');
     };
 
+    const handleAiProviderChange = async (newProvider) => {
+        const providerInfo = aiProviders.find(p => p.id === newProvider);
+        const defaultModel = providerInfo?.models?.[0]?.id || newProvider;
+        await axios.patch(`${SERVER}/api/settings`, { ai_provider: newProvider, ai_model: defaultModel });
+        setAiProvider(newProvider);
+        setAiModel(defaultModel);
+        toast(`AI provider switched to ${providerInfo?.label || newProvider}`);
+    };
+
+    const handleAiModelChange = async (newModel) => {
+        await axios.patch(`${SERVER}/api/settings`, { ai_model: newModel });
+        setAiModel(newModel);
+        toast(`Model set to ${newModel}`);
+    };
+
     const handlePostNow = async () => {
         setPostingNow(true);
         const tid = toast.loading('Posting to Instagram…');
@@ -713,6 +735,33 @@ export default function App() {
                         <span className={`h-1.5 w-1.5 rounded-full ${serverOnline ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`} />
                         <span className="text-xs text-slate-500">{serverOnline ? 'Server online' : 'Server offline'}</span>
                     </div>
+
+                    {/* AI Provider / Model selector */}
+                    {aiProviders.length > 0 && (
+                        <div className="space-y-1.5">
+                            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-0.5">AI Model</p>
+                            <select
+                                value={aiProvider}
+                                onChange={e => handleAiProviderChange(e.target.value)}
+                                className="w-full text-[11px] bg-slate-50 border border-slate-200 rounded-md px-2 py-1.5 text-slate-600 focus:outline-none focus:border-[#6c5ce7]"
+                            >
+                                {aiProviders.map(p => (
+                                    <option key={p.id} value={p.id} disabled={!p.hasKey}>
+                                        {p.label}{!p.hasKey ? ' (no key)' : ''}
+                                    </option>
+                                ))}
+                            </select>
+                            <select
+                                value={aiModel}
+                                onChange={e => handleAiModelChange(e.target.value)}
+                                className="w-full text-[11px] bg-slate-50 border border-slate-200 rounded-md px-2 py-1.5 text-slate-600 focus:outline-none focus:border-[#6c5ce7]"
+                            >
+                                {(aiProviders.find(p => p.id === aiProvider)?.models || []).map(m => (
+                                    <option key={m.id} value={m.id}>{m.label}</option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
 
                     {/* Test Mode toggle */}
                     <button onClick={handleToggleTestMode}
