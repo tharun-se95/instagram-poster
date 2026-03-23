@@ -761,7 +761,7 @@ export default function App() {
                                 ? `${stats.total} total · ${stats.approved} ready to post`
                                 : view === 'wizard'
                                 ? 'Select photos and analyze with Gemini AI'
-                                : 'Create AI-generated images with Pollinations.ai'}
+                                : 'Create AI-generated images with Gemini Flash'}
                         </p>
                     </div>
                     {view === 'dashboard' ? (

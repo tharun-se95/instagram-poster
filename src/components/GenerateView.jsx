@@ -4,9 +4,7 @@ import { toast } from 'sonner';
 import { Sparkles, Loader2, Trash2, Send, RefreshCw, Image, CheckCircle2 } from 'lucide-react';
 
 const MODELS = [
-    { id: 'default',  label: 'High Quality',   desc: 'Best results'    },
-    { id: 'turbo',    label: 'Fast',           desc: 'Quick preview'   },
-    { id: 'zimage',   label: 'Artistic',       desc: 'Stylized look'   },
+    { id: 'gemini',      label: 'Gemini Flash', desc: 'AI image generation' },
 ];
 
 const RATIOS = [
@@ -71,11 +69,7 @@ export default function GenerateView({ SERVER }) {
             fetchHistory();
         } catch (err) {
             const msg = err.response?.data?.error || err.message || 'Generation failed';
-            const isServiceDown = msg.toLowerCase().includes('pollinations') || msg.includes('500') || msg.includes('variants');
-            toast.error(isServiceDown
-                ? 'Pollinations.ai is unavailable right now — try again in a few minutes'
-                : msg
-            );
+            toast.error(msg);
         } finally {
             setGenerating(false);
         }
@@ -139,24 +133,13 @@ export default function GenerateView({ SERVER }) {
                     />
                 </div>
 
-                {/* Model selector */}
+                {/* Model badge */}
                 <div>
                     <label className="block text-xs font-medium text-slate-500 mb-2">Model</label>
-                    <div className="flex gap-2 flex-wrap">
-                        {MODELS.map(m => (
-                            <button
-                                key={m.id}
-                                onClick={() => setModel(m.id)}
-                                className={`flex flex-col px-4 py-2.5 rounded-xl border text-left transition-colors ${
-                                    model === m.id
-                                        ? 'border-[#6c5ce7] bg-[#f0eeff] text-[#6c5ce7]'
-                                        : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
-                                }`}
-                            >
-                                <span className="text-sm font-semibold">{m.label}</span>
-                                <span className="text-[11px] opacity-70">{m.desc}</span>
-                            </button>
-                        ))}
+                    <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#6c5ce7] bg-[#f0eeff] text-[#6c5ce7]">
+                        <Sparkles size={13} />
+                        <span className="text-sm font-semibold">Gemini Flash</span>
+                        <span className="text-[11px] opacity-70">· AI image generation</span>
                     </div>
                 </div>
 

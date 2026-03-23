@@ -11,7 +11,8 @@ import { logger } from '../utils/logger.js';
 import { hasEditedVersion, loadEditedImage, deleteEditedVersion, EDITED_DIR } from '../services/editingService.js';
 import { sharpEditAndSave } from '../services/sharpEditingService.js';
 import { getConfig } from '../services/instagramService.js';
-import { generateImage, saveGeneratedImage, GENERATED_DIR } from '../services/pollinationsService.js';
+import { saveGeneratedImage, GENERATED_DIR } from '../services/pollinationsService.js';
+import { generateImage } from '../services/geminiService.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const THUMBNAIL_DIR = path.join(__dirname, '..', '..', '..', 'uploads', 'thumbnails');
@@ -457,19 +458,19 @@ router.delete('/queue/:id/edit', async (req, res) => {
 
 // Generate a new image
 router.post('/generate', async (req, res) => {
-    const { prompt, model = 'flux', width = 1080, height = 1080, caption } = req.body;
+    const { prompt, width = 1080, height = 1080, caption } = req.body;
     if (!prompt || prompt.trim().length === 0) {
         return res.status(400).json({ error: 'prompt is required' });
     }
 
     const id = crypto.randomUUID();
     try {
-        const buffer = await generateImage(prompt.trim(), { model, width, height });
+        const buffer = await generateImage(prompt.trim());
         const imagePath = await saveGeneratedImage(id, buffer);
         db.insertGeneratedImage({
             id,
             prompt: prompt.trim(),
-            model,
+            model: 'gemini-2.0-flash-exp-image-generation',
             width,
             height,
             image_path: imagePath,
@@ -478,7 +479,7 @@ router.post('/generate', async (req, res) => {
             hashtags: [],
         });
 
-        logger.info({ id, model, width, height }, '[Generate] Image generated');
+        logger.info({ id, width, height }, '[Generate] ✅ Image generated via Gemini');
         res.json({ success: true, id, imageUrl: `/api/generate/${id}/image` });
     } catch (err) {
         logger.error({ err: err.message }, '[Generate] Failed');

@@ -104,3 +104,37 @@ Return ONLY the caption text, no JSON.`;
         return null;
     }
 }
+
+// ── Image generation via Gemini Flash ─────────────────────────────────────────
+let _imageModel = null;
+function getImageModel() {
+    if (!_imageModel) {
+        const genAI = new GoogleGenerativeAI(process.env.VITE_GEMINI_API_KEY);
+        _imageModel = genAI.getGenerativeModel({
+            model: 'gemini-2.5-flash-image',
+            generationConfig: { responseModalities: ['TEXT', 'IMAGE'] },
+        });
+    }
+    return _imageModel;
+}
+
+/**
+ * Generate an image from a text prompt using Gemini.
+ * Returns a Buffer containing the JPEG image data.
+ */
+export async function generateImage(prompt) {
+    logger.info({ prompt: prompt.slice(0, 80) }, '[Gemini] Generating image...');
+
+    const model = getImageModel();
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+
+    for (const part of response.candidates[0].content.parts) {
+        if (part.inlineData?.mimeType?.startsWith('image/')) {
+            logger.info('[Gemini] ✅ Image generated');
+            return Buffer.from(part.inlineData.data, 'base64');
+        }
+    }
+
+    throw new Error('Gemini did not return an image in the response');
+}
