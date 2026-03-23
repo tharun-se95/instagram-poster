@@ -4,7 +4,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import * as db from '../models/db.js';
-import { analyzePhoto } from './geminiService.js';
+import { analyzePhoto } from './aiService.js';
 import { bridgeToPublic, bridgeFromBuffer, downloadForAnalysis, cropToInstagramRatio } from './mediaBridgeService.js';
 import { postImage, archivePost } from './instagramService.js';
 import { loadEditedImage } from './editingService.js';
